@@ -7,33 +7,33 @@ Color Sensor 1     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                8
-s1                9
-s2                10
-s3                11
-OUT               12
+s0                30
+s1                31
+s2                32
+s3                33
+OUT               20
 OE                GND
 
 Color Sensor 2     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                8
-s1                9
-s2                10
-s3                11
-OUT               13
+s0                30
+s1                31
+s2                32
+s3                33
+OUT               21
 OE                GND
 
 Color Sensor 3     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                8
-s1                9
-s2                10
-s3                11
-OUT               14
+s0                30
+s1                31
+s2                32
+s3                33
+OUT               22
 OE                GND
 
 LCD               Arduino
