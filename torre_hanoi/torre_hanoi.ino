@@ -7,33 +7,33 @@ Color Sensor 1     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                30
-s1                31
-s2                32
-s3                33
-OUT               20
+s0                50
+s1                51
+s2                52
+s3                53
+OUT               49
 OE                GND
 
 Color Sensor 2     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                30
-s1                31
-s2                32
-s3                33
-OUT               21
+s0                50
+s1                51
+s2                47
+s3                46
+OUT               48
 OE                GND
 
 Color Sensor 3     Arduino
 -----------      --------
 VCC               5V
 GND               GND
-s0                30
-s1                31
-s2                32
-s3                33
-OUT               22
+s0                50
+s1                41
+s2                43
+s3                42
+OUT               41
 OE                GND
 
 LCD               Arduino
@@ -56,6 +56,15 @@ K                 GND
 #include<LiquidCrystal.h>
 
 // Structs
+struct SENSOR {
+  int S0;
+  int S1;
+  int S2;
+  int S3;
+  int OUT;
+  int sensorNumber;
+};
+
 struct DISK {
   String color;
   String topColor;
@@ -75,13 +84,6 @@ struct LAST_READ {
 
 // Constants
 const int messageOffset = 350;
-const int s0 = 30;
-const int s1 = 31;
-const int s2 = 32;
-const int s3 = 33;
-const int sensorOut1 = 20;
-const int sensorOut2 = 21;
-const int sensorOut3 = 22;
 
 // Variables
 int red = 0;
@@ -93,6 +95,9 @@ LAST_READ lastRead;
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
+SENSOR sensor1;
+SENSOR sensor2;
+SENSOR sensor3;
 TOWER tower1;
 TOWER tower2;
 TOWER tower3;
@@ -110,44 +115,57 @@ void setup() {
   // init game variables
   initGameValues();
   
+  // init sensor pin mode
+  sensor1 = {50, 51, 52, 53, 49 , 1};
+  sensor2 = {50, 51, 47, 46, 45 , 2};
+  sensor3 = {50, 51, 43, 42, 41 , 3};  
+  setSensorPinMode(sensor1);
+  setSensorPinMode(sensor2);
+  setSensorPinMode(sensor3);
 
   // start lcd screen
   lcd.begin(16,2);
   
   // show default message
   printDefaultMessage();
-  
-  Serial.begin(9600);
-  pinMode(s0, OUTPUT);
-  pinMode(s1, OUTPUT);
-  pinMode(s2, OUTPUT);
-  pinMode(s3, OUTPUT);
-  pinMode(sensorOut1, INPUT);
-  pinMode(sensorOut2, INPUT);
-  pinMode(sensorOut3, INPUT);
-  digitalWrite(s0, HIGH);
-  digitalWrite(s1, HIGH);
 }
 
 void loop() {
-  readColor(sensorOut1);
-  readColor(sensorOut2);
-  readColor(sensorOut3);
-  checkGameRoles();
-  delay(50);
+  readColor(sensor1);
+  delay(100);
+  readColor(sensor2);
+  delay(100);
+  readColor(sensor3);
+  delay(100);
+  // checkGameRoles();
+  delay(100);
 }
 
 void initGameValues() {
-  blueDisk = { "red", "all" };
+  // disk rules
+  blueDisk = { "red", "all" }; 
   yellowDisk = { "blue", "red" };
   redDisk = { "blue", "none" };
+
+  // initial postion disks in towers
   tower1 = { "blue", "yellow", "red", "red" };
   tower2 = { "none", "none", "none", "none" };
   tower3 = { "none", "none", "none", "none" };
 }
 
-int readColor(int sensorNumber) {
-  pulseSensor(sensorNumber);
+void setSensorPinMode(SENSOR sensor) {
+  Serial.begin(9600);
+  pinMode(sensor.S0, OUTPUT);
+  pinMode(sensor.S1, OUTPUT);
+  pinMode(sensor.S2, OUTPUT);
+  pinMode(sensor.S3, OUTPUT);
+  pinMode(sensor.OUT, INPUT);
+  digitalWrite(sensor.S0, HIGH);
+  digitalWrite(sensor.S1, HIGH);
+}
+
+int readColor(SENSOR sensor) {
+  pulseSensor(sensor);
   Serial.print("R Intensity:");
   Serial.print(red, DEC);
   Serial.print(" G Intensity: ");
@@ -155,36 +173,39 @@ int readColor(int sensorNumber) {
   Serial.print(" B Intensity : ");
   Serial.print(blue, DEC);
 
-  if (red < green && red < blue && green < blue){
-    Serial.println(" - (Yellow Color)");
+  if (red < green && red < blue && green < blue && (blue - green) > 9){
+    Serial.print(" - (Yellow Color)");
     lastRead.color = "yellow";
   } else if (red < blue && red < green && red < 20){
-    Serial.println(" - (Red Color)");
+    Serial.print(" - (Red Color)");
     lastRead.color = "red";
   } else if (blue < red && blue < green) {
-    Serial.println(" - (Blue Color)");
+    Serial.print(" - (Blue Color)");
     lastRead.color = "blue";
-  } else if (green < red && green < blue){
-    lastRead.color = "green";
-    Serial.println(" - (Green Color)");
-  } else{
+  } else {
     lastRead.color = "unknow";
-    Serial.println(" - (Unknow Color)");
+    Serial.print(" - (Unknow Color)");
   }
+
+  if (lastRead.color != "unknow"){
+    lastRead.sensorNumber = sensor.sensorNumber;
+  }
+
+  Serial.print(" - Sensor ");
+  Serial.println(sensor.sensorNumber);
 }
 
-void pulseSensor(int sensorOut) {
-  digitalWrite(s2, LOW);
-  digitalWrite(s3, LOW);
+void pulseSensor(SENSOR sensor) {
+  digitalWrite(sensor.S2, LOW);
+  digitalWrite(sensor.S3, LOW);
   //count sensorOut, pRed, RED
-  red = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
-  digitalWrite(s3, HIGH);
+  red = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
+  digitalWrite(sensor.S3, HIGH);
   //count sensorOut, pBLUE, BLUE
-  blue = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
-  digitalWrite(s2, HIGH);
+  blue = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
+  digitalWrite(sensor.S2, HIGH);
   //count sensorOut, pGreen, GREEN
-  green = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
-  setLastSensorRead(sensorOut);
+  green = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
 }
 
 
@@ -209,13 +230,7 @@ void printAlert(String message) {
 }
 
 void setLastSensorRead(int sensorNumber) {
-  if (sensorNumber == sensorOut1){
-    lastRead.sensorNumber = 1;
-  } else if (sensorNumber = sensorOut2){
-    lastRead.sensorNumber = 2;
-  } else {
-    lastRead.sensorNumber = 3;
-  }
+  lastRead.sensorNumber = sensorNumber;
 }
 
 void checkGameRoles() {
