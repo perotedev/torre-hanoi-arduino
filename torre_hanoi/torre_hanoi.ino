@@ -238,7 +238,9 @@ bool isValidInsertAction(DISK diskOnTop){
   if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == lastRead.color){
     return true;
   } else {
-    printAlert("ACAO INVALIDA");
+    if (diskOnTop.color != lastRead.color){
+      printAlert("ACAO INVALIDA");
+    }
     return false;
   }
 }
