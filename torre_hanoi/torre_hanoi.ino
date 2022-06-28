@@ -66,6 +66,7 @@ struct TOWER {
   String below;
   String middle;
   String top;
+  int sensorId;
 };
 
 // Constants
@@ -83,6 +84,7 @@ int red = 0;
 int green = 0;
 int blue = 0;
 int actualyColor;
+int actualySensor;
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
@@ -127,9 +129,9 @@ void initGameValues() {
   blueDisk = { "red", "all", "none" };
   yellowDisk = { "blue", "red", "azul" };
   redDisk = { "blue", "none", "all" };
-  tower1 = {"blue", "yellow", "red"};
-  tower2 = {"none", "none", "none"};
-  tower3 = {"none", "none", "none"};
+  tower1 = {"blue", "yellow", "red", 12 };
+  tower2 = {"none", "none", "none", 13 };
+  tower3 = {"none", "none", "none", 14 };
 }
 
 void readColor() {
