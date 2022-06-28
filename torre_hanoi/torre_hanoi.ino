@@ -1,9 +1,9 @@
 /*
-TCS230 color recognition sensor
-modified on 7 May 2019
-by Mohammadreza Akbari @ Electropeak
-https://electropeak.com/learn/
-Color Sensor      Arduino
+Hanoi tower game with arduino
+modified on 77 June 2022
+by @perotedev @Lojlvenom
+
+Color Sensor 1     Arduino
 -----------      --------
 VCC               5V
 GND               GND
@@ -13,11 +13,28 @@ s2                10
 s3                11
 OUT               12
 OE                GND
-*/
 
+Color Sensor 2     Arduino
+-----------      --------
+VCC               5V
+GND               GND
+s0                8
+s1                9
+s2                10
+s3                11
+OUT               12
+OE                GND
 
-/* 
-config da tela lCD
+Color Sensor 3     Arduino
+-----------      --------
+VCC               5V
+GND               GND
+s0                8
+s1                9
+s2                10
+s3                11
+OUT               12
+OE                GND
 
 LCD               Arduino
 -----------      --------
@@ -35,7 +52,6 @@ A                 5V + resistor
 K                 GND
 */
 
-
 // include lcd lib
 #include<LiquidCrystal.h>
 
@@ -50,24 +66,33 @@ int red = 0;
 int green = 0;
 int blue = 0;
 
+struct DISK {
+  String color;
+  String topColor;
+  String belowColor;
+};
+
+DISK blueDisk;
+DISK yellowDisk;
+DISK redDisk;
+
+struct TOWER {
+  String below;
+  String middle;
+  String top;
+};
+
+TOWER tower1;
+TOWER tower2;
+TOWER tower3;
 
 // Lcd definition
 LiquidCrystal lcd(8,9,10,11,12,13);
 
+void setup() {
+  // init game variables
+  initGameValues();
 
-void color(){
-  digitalWrite(s2, LOW);
-  digitalWrite(s3, LOW);
-  //count OUT, pRed, RED
-  red = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-  digitalWrite(s3, HIGH);
-  //count OUT, pBLUE, BLUE
-  blue = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-  digitalWrite(s2, HIGH);
-  //count OUT, pGreen, GREEN
-  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-}
-void setup(){
   // start lcd screen
   lcd.begin(16,2);
 
@@ -113,6 +138,27 @@ void loop() {
   } else{
     Serial.println("(Unknow Color)");
   }
-  
   delay(300);
+}
+
+void color() {
+  digitalWrite(s2, LOW);
+  digitalWrite(s3, LOW);
+  //count OUT, pRed, RED
+  red = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+  digitalWrite(s3, HIGH);
+  //count OUT, pBLUE, BLUE
+  blue = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+  digitalWrite(s2, HIGH);
+  //count OUT, pGreen, GREEN
+  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+}
+
+void initGameValues() {
+  blueDisk = { "red", "all", "none" };
+  yellowDisk = { "blue", "red", "azul" };
+  redDisk = { "blue", "none", "all" };
+  tower1 = {"blue", "yellow", "red"};
+  tower2 = {"none", "none", "none"};
+  tower3 = {"none", "none", "none"};
 }
