@@ -87,6 +87,7 @@ int red = 0;
 int green = 0;
 int blue = 0;
 int actionsCount = 0;
+int sensorTimerDelay = 1501;
 LAST_READ lastRead;
 DISK blueDisk;
 DISK yellowDisk;
@@ -133,7 +134,7 @@ void loop() {
   readColor(sensorOut2);
   readColor(sensorOut3);
   checkGameRoles();
-  delay(100);
+  delay(50);
 }
 
 void initGameValues() {
