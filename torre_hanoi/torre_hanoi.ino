@@ -74,11 +74,13 @@ struct LAST_READ {
 };
 
 // Constants
-const int s0 = 8;
-const int s1 = 9;
-const int s2 = 10;
-const int s3 = 11;
-const int out = 12;
+const int s0 = 30;
+const int s1 = 31;
+const int s2 = 32;
+const int s3 = 33;
+const int sensorOut1 = 20;
+const int sensorOut2 = 21;
+const int sensorOut3 = 22;
 
 // Variables
 int red = 0;
@@ -119,14 +121,17 @@ void setup() {
   pinMode(s1, OUTPUT);
   pinMode(s2, OUTPUT);
   pinMode(s3, OUTPUT);
-  pinMode(out, INPUT);
+  pinMode(sensorOut1, INPUT);
+  pinMode(sensorOut2, INPUT);
+  pinMode(sensorOut3, INPUT);
   digitalWrite(s0, HIGH);
   digitalWrite(s1, HIGH);
 }
 
 void loop() {
-  readColor();
-  setLastColorRead();
+  readColor(sensorOut1);
+  readColor(sensorOut2);
+  readColor(sensorOut3);
   checkGameRoles();
   delay(100);
 }
@@ -140,20 +145,8 @@ void initGameValues() {
   tower3 = { "none", "none", "none", "none" };
 }
 
-void readColor() {
-  digitalWrite(s2, LOW);
-  digitalWrite(s3, LOW);
-  //count OUT, pRed, RED
-  red = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-  digitalWrite(s3, HIGH);
-  //count OUT, pBLUE, BLUE
-  blue = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-  digitalWrite(s2, HIGH);
-  //count OUT, pGreen, GREEN
-  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
-}
-
-int setLastColorRead() {
+int readColor(int sensorNumber) {
+  pulseSensor();
   Serial.print("R Intensity:");
   Serial.print(red, DEC);
   Serial.print(" G Intensity: ");
@@ -176,6 +169,30 @@ int setLastColorRead() {
   } else{
     lastRead.color = "unknow";
     Serial.println(" - (Unknow Color)");
+  }
+  setLastSensorRead(sensorNumber);
+}
+
+void pulseSensor() {
+  digitalWrite(s2, LOW);
+  digitalWrite(s3, LOW);
+  //count sensorOut1, pRed, RED
+  red = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+  digitalWrite(s3, HIGH);
+  //count sensorOut1, pBLUE, BLUE
+  blue = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+  digitalWrite(s2, HIGH);
+  //count sensorOut1, pGreen, GREEN
+  green = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+}
+
+void setLastSensorRead(int sensorNumber) {
+  if (sensorNumber == sensorOut1){
+    lastRead.sensorNumber = 1;
+  } else if (sensorNumber = sensorOut2){
+    lastRead.sensorNumber = 2;
+  } else {
+    lastRead.sensorNumber = 3;
   }
 }
 
