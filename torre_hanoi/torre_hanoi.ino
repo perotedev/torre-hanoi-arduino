@@ -74,18 +74,22 @@ const int s1 = 9;
 const int s2 = 10;
 const int s3 = 11;
 const int out = 12;
+const int BLUE = 1;
+const int YELLOW = 2;
+const int RED = 3;
 
 // Variables
 int red = 0;
 int green = 0;
 int blue = 0;
-String actualyColor;
+int actualyColor;
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
 TOWER tower1;
 TOWER tower2;
 TOWER tower3;
+TOWER* towers[3] = { &tower1, &tower2, &tower3 };
 
 // Lcd definition
 LiquidCrystal lcd(8,9,10,11,12,13);
@@ -141,7 +145,7 @@ void readColor() {
   green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
 }
 
-String getColor() {
+int getColor() {
   Serial.print("R Intensity:");
   Serial.print(red, DEC);
   Serial.print(" G Intensity: ");
@@ -151,27 +155,44 @@ String getColor() {
 
   if (red < green && red < blue && green < blue){
     Serial.println(" - (Yellow Color)");
-    return "yellow";
+    return YELLOW;
     // GET YELLOW 
   } else if (red < blue && red < green && red < 20){
     Serial.println(" - (Red Color)");
-    return "red";
+    return RED;
     // GET RED
   } else if (blue < red && blue < green) {
     Serial.println(" - (Blue Color)");
-    return "blue";
+    return BLUE;
     // GET BLUE
   } else if (green < red && green < blue){
-    return "green";
+    return 0;
     Serial.println(" - (Green Color)");
     // GET GREEN;
   } else{
-    return "unknow";
+    return 0;
     Serial.println(" - (Unknow Color)");
     // GET UNKNOW;
   }
 }
 
 void checkGameRoles() {
+  switch (actualyColor) {
+    case BLUE:
+      // statements
+      break;
+    case YELLOW:
+      // statements
+      break;
+    case RED:
+      // statements
+      break;
+    default:
+      // statements
+      break;
+  }
+}
 
+void checkTowers(int towerNumber) {
+  
 }
