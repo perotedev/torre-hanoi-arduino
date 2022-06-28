@@ -55,6 +55,20 @@ K                 GND
 // include lcd lib
 #include<LiquidCrystal.h>
 
+// Structs
+struct DISK {
+  String color;
+  String topColor;
+  String belowColor;
+};
+
+struct TOWER {
+  String below;
+  String middle;
+  String top;
+};
+
+// Constants
 const int s0 = 8;
 const int s1 = 9;
 const int s2 = 10;
@@ -65,23 +79,10 @@ const int out = 12;
 int red = 0;
 int green = 0;
 int blue = 0;
-
-struct DISK {
-  String color;
-  String topColor;
-  String belowColor;
-};
-
+String actualyColor;
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
-
-struct TOWER {
-  String below;
-  String middle;
-  String top;
-};
-
 TOWER tower1;
 TOWER tower2;
 TOWER tower3;
@@ -101,7 +102,6 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("Equipe 4");
 
-
   Serial.begin(9600);
   pinMode(s0, OUTPUT);
   pinMode(s1, OUTPUT);
@@ -113,35 +113,22 @@ void setup() {
 }
 
 void loop() {
-  color();
-  Serial.print("R Intensity:");
-  Serial.print(red, DEC);
-  Serial.print(" G Intensity: ");
-  Serial.print(green, DEC);
-  Serial.print(" B Intensity : ");
-  Serial.print(blue, DEC);
-  //Serial.println();
-  if (red < green && red < blue && green < blue){
-    Serial.println(" - (Yellow Color)");
-    // Turn YELLOW LED ON
-  } else if (red < blue && red < green && red < 20){
-    Serial.println(" - (Red Color)");
-    // Turn RED LED ON
-  }
-  else if (blue < red && blue < green) {
-    Serial.println(" - (Blue Color)");
-    // Turn BLUE LED ON
-  }
-  else if (green < red && green < blue){
-    Serial.println(" - (Green Color)");
-    // Turn GREEN LED ON;
-  } else{
-    Serial.println("(Unknow Color)");
-  }
-  delay(300);
+  readColor();
+  actualyColor = getColor();
+  checkGameRoles();
+  delay(100);
 }
 
-void color() {
+void initGameValues() {
+  blueDisk = { "red", "all", "none" };
+  yellowDisk = { "blue", "red", "azul" };
+  redDisk = { "blue", "none", "all" };
+  tower1 = {"blue", "yellow", "red"};
+  tower2 = {"none", "none", "none"};
+  tower3 = {"none", "none", "none"};
+}
+
+void readColor() {
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
   //count OUT, pRed, RED
@@ -154,11 +141,37 @@ void color() {
   green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
 }
 
-void initGameValues() {
-  blueDisk = { "red", "all", "none" };
-  yellowDisk = { "blue", "red", "azul" };
-  redDisk = { "blue", "none", "all" };
-  tower1 = {"blue", "yellow", "red"};
-  tower2 = {"none", "none", "none"};
-  tower3 = {"none", "none", "none"};
+String getColor() {
+  Serial.print("R Intensity:");
+  Serial.print(red, DEC);
+  Serial.print(" G Intensity: ");
+  Serial.print(green, DEC);
+  Serial.print(" B Intensity : ");
+  Serial.print(blue, DEC);
+
+  if (red < green && red < blue && green < blue){
+    Serial.println(" - (Yellow Color)");
+    return "yellow";
+    // GET YELLOW 
+  } else if (red < blue && red < green && red < 20){
+    Serial.println(" - (Red Color)");
+    return "red";
+    // GET RED
+  } else if (blue < red && blue < green) {
+    Serial.println(" - (Blue Color)");
+    return "blue";
+    // GET BLUE
+  } else if (green < red && green < blue){
+    return "green";
+    Serial.println(" - (Green Color)");
+    // GET GREEN;
+  } else{
+    return "unknow";
+    Serial.println(" - (Unknow Color)");
+    // GET UNKNOW;
+  }
+}
+
+void checkGameRoles() {
+
 }
