@@ -237,6 +237,7 @@ bool isValidInsertAction(DISK diskOnTop){
   if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == lastRead.color){
     return true;
   } else {
+    printAlert("ACAO INVALIDA");
     return false;
   }
 }
@@ -251,6 +252,7 @@ void insertDiskOnTower(int towerNumber, String color){
   }
   towers[towerNumber-1].colorOnTop = color;
   actionsCount ++;
+  printActionsCount();
 }
 
 void removeDiskFromTower(int towerNumber, String color) {
@@ -266,5 +268,14 @@ void removeDiskFromTower(int towerNumber, String color) {
       towers[towerNumber-1].colorOnTop = towers[towerNumber-1].middle;
     }
     actionsCount ++;
+    printActionsCount();
   }
+}
+
+void printActionsCount() {
+
+}
+
+void printAlert(String message) {
+
 }
