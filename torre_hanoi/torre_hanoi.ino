@@ -146,7 +146,7 @@ void initGameValues() {
 }
 
 int readColor(int sensorNumber) {
-  pulseSensor();
+  pulseSensor(sensorNumber);
   Serial.print("R Intensity:");
   Serial.print(red, DEC);
   Serial.print(" G Intensity: ");
@@ -170,20 +170,20 @@ int readColor(int sensorNumber) {
     lastRead.color = "unknow";
     Serial.println(" - (Unknow Color)");
   }
-  setLastSensorRead(sensorNumber);
 }
 
-void pulseSensor() {
+void pulseSensor(int sensorOut) {
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
-  //count sensorOut1, pRed, RED
-  red = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+  //count sensorOut, pRed, RED
+  red = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
   digitalWrite(s3, HIGH);
-  //count sensorOut1, pBLUE, BLUE
-  blue = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+  //count sensorOut, pBLUE, BLUE
+  blue = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
   digitalWrite(s2, HIGH);
-  //count sensorOut1, pGreen, GREEN
-  green = pulseIn(sensorOut1, digitalRead(sensorOut1) == HIGH ? LOW : HIGH);
+  //count sensorOut, pGreen, GREEN
+  green = pulseIn(sensorOut, digitalRead(sensorOut) == HIGH ? LOW : HIGH);
+  setLastSensorRead(sensorOut);
 }
 
 void setLastSensorRead(int sensorNumber) {
