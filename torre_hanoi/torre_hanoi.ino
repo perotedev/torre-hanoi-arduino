@@ -22,7 +22,7 @@ s0                8
 s1                9
 s2                10
 s3                11
-OUT               12
+OUT               13
 OE                GND
 
 Color Sensor 3     Arduino
@@ -33,7 +33,7 @@ s0                8
 s1                9
 s2                10
 s3                11
-OUT               12
+OUT               14
 OE                GND
 
 LCD               Arduino
