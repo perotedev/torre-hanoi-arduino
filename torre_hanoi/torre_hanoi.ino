@@ -84,6 +84,7 @@ const int out = 12;
 int red = 0;
 int green = 0;
 int blue = 0;
+int actionsCount = 0;
 LAST_READ lastRead;
 DISK blueDisk;
 DISK yellowDisk;
@@ -91,7 +92,12 @@ DISK redDisk;
 TOWER tower1;
 TOWER tower2;
 TOWER tower3;
-TOWER* towers[3] = { &tower1, &tower2, &tower3 };
+
+// Pointers to access tower struct by reference array
+TOWER *t1 = &tower1;
+TOWER *t2 = &tower2;
+TOWER *t3 = &tower3;
+TOWER towers[3] = { *t1, *t2, *t3 };
 
 // Lcd definition
 LiquidCrystal lcd(8,9,10,11,12,13);
@@ -158,54 +164,45 @@ int setLastColorRead() {
   if (red < green && red < blue && green < blue){
     Serial.println(" - (Yellow Color)");
     lastRead.color = "yellow";
-    // GET YELLOW 
   } else if (red < blue && red < green && red < 20){
     Serial.println(" - (Red Color)");
     lastRead.color = "red";
-    // GET RED
   } else if (blue < red && blue < green) {
     Serial.println(" - (Blue Color)");
     lastRead.color = "blue";
-    // GET BLUE
   } else if (green < red && green < blue){
     lastRead.color = "green";
     Serial.println(" - (Green Color)");
-    // GET GREEN;
   } else{
     lastRead.color = "unknow";
     Serial.println(" - (Unknow Color)");
-    // GET UNKNOW;
   }
 }
 
 void checkGameRoles() {
   switch (lastRead.sensorNumber) {
     case 1:
-      checkTower(1);
+      tryMoveDisk(towers[0]);
       break;
     case 2:
-      checkTower(2);
+      tryMoveDisk(towers[1]);
       break;
     case 3:
-      checkTower(3);
+      tryMoveDisk(towers[2]);
       break;
     default:
       break;
   }
 }
 
-void checkTower(int towerNumber) {
-  
-  
-}
-
-void checkTopDisk(TOWER tower) {
-  if (tower.colorOnTop != "none") {
-    DISK diskOnTop;
-    diskOnTop = getDisk(tower.colorOnTop);
-
+void tryMoveDisk(TOWER tower) {
+  DISK diskOnTop;
+  diskOnTop = getDisk(tower.colorOnTop);
+  bool validateAction = isValidInsertAction(diskOnTop);
+  if (validateAction) {
+    insertDiskOnTower(lastRead.sensorNumber, lastRead.color);
   } else {
-
+    removeDiskFromTower(lastRead.sensorNumber, lastRead.color);
   }
 }
 
@@ -219,10 +216,38 @@ DISK getDisk(String diskColor) {
   }
 }
 
-bool isValidAction(DISK diskOnTop){
+bool isValidInsertAction(DISK diskOnTop){
   if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == lastRead.color){
     return true;
   } else {
     return false;
+  }
+}
+
+void insertDiskOnTower(int towerNumber, String color){
+  if (towers[towerNumber-1].below == "none"){
+    towers[towerNumber-1].top = color;
+  } else if (towers[towerNumber-1].middle == "none") {
+    towers[towerNumber-1].middle = color;
+  } else {
+    towers[towerNumber-1].top = color;
+  }
+  towers[towerNumber-1].colorOnTop = color;
+  actionsCount ++;
+}
+
+void removeDiskFromTower(int towerNumber, String color) {
+  if (towers[towerNumber-1].colorOnTop == color) {
+    if (towers[towerNumber-1].below == color){
+      towers[towerNumber-1].below = "none";
+      towers[towerNumber-1].colorOnTop = "none";
+    } else if (towers[towerNumber-1].middle == color) {
+      towers[towerNumber-1].middle = "none";
+      towers[towerNumber-1].colorOnTop = towers[towerNumber-1].below;
+    } else {
+      towers[towerNumber-1].top = "none";
+      towers[towerNumber-1].colorOnTop = towers[towerNumber-1].middle;
+    }
+    actionsCount ++;
   }
 }
