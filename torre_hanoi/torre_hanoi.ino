@@ -74,6 +74,7 @@ struct LAST_READ {
 };
 
 // Constants
+const int messageOffset = 350;
 const int s0 = 30;
 const int s1 = 31;
 const int s2 = 32;
@@ -108,15 +109,14 @@ LiquidCrystal lcd(8,9,10,11,12,13);
 void setup() {
   // init game variables
   initGameValues();
+  
 
   // start lcd screen
   lcd.begin(16,2);
-
-  // lcd usage example
-  lcd.print("Torre de Hanoi");
-  lcd.setCursor(0,1);
-  lcd.print("Equipe 4");
-
+  
+  // show default message
+  printDefaultMessage();
+  
   Serial.begin(9600);
   pinMode(s0, OUTPUT);
   pinMode(s1, OUTPUT);
@@ -187,6 +187,27 @@ void pulseSensor(int sensorOut) {
   setLastSensorRead(sensorOut);
 }
 
+
+void printDefaultMessage() {
+  lcd.clear();
+  lcd.print("Torre de Hanoi");
+  lcd.setCursor(0,1);
+  lcd.print("Faca uma jogada!");
+  }
+
+  
+void printActionsCount() {
+    lcd.clear();
+    lcd.print("Quantidade de jogadas realizadas:");
+    lcd.print(actionsCount);
+
+}
+
+void printAlert(String message) {
+  lcd.clear();
+  lcd.print(message);
+}
+
 void setLastSensorRead(int sensorNumber) {
   if (sensorNumber == sensorOut1){
     lastRead.sensorNumber = 1;
@@ -240,6 +261,8 @@ bool isValidInsertAction(DISK diskOnTop){
   } else {
     if (diskOnTop.color != lastRead.color){
       printAlert("ACAO INVALIDA");
+      delay(messageOffset);
+      printDefaultMessage();
     }
     return false;
   }
@@ -256,6 +279,8 @@ void insertDiskOnTower(int towerNumber, String color){
   towers[towerNumber-1].colorOnTop = color;
   actionsCount ++;
   printActionsCount();
+  delay(messageOffset);
+  printDefaultMessage();
 }
 
 void removeDiskFromTower(int towerNumber, String color) {
@@ -272,13 +297,7 @@ void removeDiskFromTower(int towerNumber, String color) {
     }
     actionsCount ++;
     printActionsCount();
+    delay(messageOffset);
+    printDefaultMessage();
   }
-}
-
-void printActionsCount() {
-
-}
-
-void printAlert(String message) {
-
 }
