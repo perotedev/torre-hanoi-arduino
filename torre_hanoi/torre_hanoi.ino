@@ -79,15 +79,16 @@ struct TOWER {
 };
 
 // Constants
-const int messageOffset = 400;
+const int messageOffset = 400; // alert display time
 const int timeToNextMove = 1000; // one second after last move is permited more actions
 
 // Variables
 int red = 0;
 int green = 0;
 int blue = 0;
-int actionsCount = 0;
-int lastActionTime = 1001; 
+int actionsCount = 0; // count actions number
+int lastActionTime = 1001; // time since last action
+int disksOutTowerCount = 0; // checks the number of disks outside the towers
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
@@ -290,7 +291,6 @@ void printDefaultMessage() {
   lcd.print("Faca uma jogada!");
 }
 
-  
 void printActionsCount() {
   lcd.clear();
   lcd.print("Quantidade de jogadas realizadas:");
