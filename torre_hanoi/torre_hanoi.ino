@@ -63,6 +63,7 @@ struct SENSOR {
   int S3;
   int OUT;
   int sensorNumber;
+  String lastColorRead;
 };
 
 struct DISK {
@@ -77,21 +78,16 @@ struct TOWER {
   String colorOnTop;
 };
 
-struct LAST_READ {
-  String color;
-  int sensorNumber;
-};
-
 // Constants
-const int messageOffset = 350;
+const int messageOffset = 400;
+const int timeToNextMove = 1000; // one second after last move is permited more actions
 
 // Variables
 int red = 0;
 int green = 0;
 int blue = 0;
 int actionsCount = 0;
-int sensorTimerDelay = 1501;
-LAST_READ lastRead;
+int lastActionTime = 1001; 
 DISK blueDisk;
 DISK yellowDisk;
 DISK redDisk;
@@ -116,9 +112,9 @@ void setup() {
   initGameValues();
   
   // init sensor pin mode
-  sensor1 = {50, 51, 52, 53, 49 , 1};
-  sensor2 = {50, 51, 47, 46, 45 , 2};
-  sensor3 = {50, 51, 43, 42, 41 , 3};  
+  sensor1 = {50, 51, 52, 53, 49 , 1, "unknow"};
+  sensor2 = {50, 51, 47, 46, 45 , 2, "unknow"};
+  sensor3 = {50, 51, 43, 42, 41 , 3, "unknow"};  
   setSensorPinMode(sensor1);
   setSensorPinMode(sensor2);
   setSensorPinMode(sensor3);
@@ -137,15 +133,19 @@ void loop() {
   delay(100);
   readColor(sensor3);
   delay(100);
-  // checkGameRoles();
-  delay(100);
+  if (lastActionTime > timeToNextMove){
+    playGame();
+    delay(100);
+    lastActionTime = 100;
+  }
+  lastActionTime += 300;
 }
 
 void initGameValues() {
   // disk rules
-  blueDisk = { "red", "all" }; 
-  yellowDisk = { "blue", "red" };
-  redDisk = { "blue", "none" };
+  blueDisk = { "blue", "all" }; 
+  yellowDisk = { "yellow", "red" };
+  redDisk = { "red", "none" };
 
   // initial postion disks in towers
   tower1 = { "blue", "yellow", "red", "red" };
@@ -175,22 +175,18 @@ int readColor(SENSOR sensor) {
 
   if (red < green && red < blue && green < blue && (blue - green) > 9){
     Serial.print(" - (Yellow Color)");
-    lastRead.color = "yellow";
+    sensor.lastColorRead = "yellow";
   } else if (red < blue && red < green && red < 20){
     Serial.print(" - (Red Color)");
-    lastRead.color = "red";
+    sensor.lastColorRead = "red";
   } else if (blue < red && blue < green) {
     Serial.print(" - (Blue Color)");
-    lastRead.color = "blue";
+    sensor.lastColorRead = "blue";
   } else {
-    lastRead.color = "unknow";
+    sensor.lastColorRead = "unknow";
     Serial.print(" - (Unknow Color)");
   }
-
-  if (lastRead.color != "unknow"){
-    lastRead.sensorNumber = sensor.sensorNumber;
-  }
-
+  
   Serial.print(" - Sensor ");
   Serial.println(sensor.sensorNumber);
 }
@@ -208,55 +204,24 @@ void pulseSensor(SENSOR sensor) {
   green = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
 }
 
-
-void printDefaultMessage() {
-  lcd.clear();
-  lcd.print("Torre de Hanoi");
-  lcd.setCursor(0,1);
-  lcd.print("Faca uma jogada!");
-  }
-
-  
-void printActionsCount() {
-    lcd.clear();
-    lcd.print("Quantidade de jogadas realizadas:");
-    lcd.print(actionsCount);
-
-}
-
-void printAlert(String message) {
-  lcd.clear();
-  lcd.print(message);
-}
-
-void setLastSensorRead(int sensorNumber) {
-  lastRead.sensorNumber = sensorNumber;
-}
-
-void checkGameRoles() {
-  switch (lastRead.sensorNumber) {
-    case 1:
-      tryMoveDisk(towers[0]);
-      break;
-    case 2:
-      tryMoveDisk(towers[1]);
-      break;
-    case 3:
-      tryMoveDisk(towers[2]);
-      break;
-    default:
-      break;
+void playGame() {
+  if (sensor1.lastColorRead != "unknow"){
+    tryMoveDisk(sensor1);
+  } else if (sensor2.lastColorRead != "unknow"){
+    tryMoveDisk(sensor2);
+  } else if (sensor3.lastColorRead != "unknow"){
+    tryMoveDisk(sensor3);
   }
 }
 
-void tryMoveDisk(TOWER tower) {
-  DISK diskOnTop;
-  diskOnTop = getDisk(tower.colorOnTop);
-  bool validateAction = isValidInsertAction(diskOnTop);
-  if (validateAction) {
-    insertDiskOnTower(lastRead.sensorNumber, lastRead.color);
+void tryMoveDisk(SENSOR sensor) {
+  TOWER tower = towers[sensor.sensorNumber-1];
+  DISK diskOnTop = getDisk(tower.colorOnTop);
+  bool isInsertion = isInsertAction(diskOnTop, sensor.lastColorRead);
+  if (isInsertion) {
+    insertDiskOnTower(sensor.sensorNumber, sensor.lastColorRead);
   } else {
-    removeDiskFromTower(lastRead.sensorNumber, lastRead.color);
+    removeDiskFromTower(sensor.sensorNumber, sensor.lastColorRead);
   }
 }
 
@@ -270,11 +235,12 @@ DISK getDisk(String diskColor) {
   }
 }
 
-bool isValidInsertAction(DISK diskOnTop){
-  if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == lastRead.color){
+bool isInsertAction(DISK diskOnTop, String color){
+  if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == color){
     return true;
   } else {
-    if (diskOnTop.color != lastRead.color){
+    // condition check if is a disk remove
+    if (diskOnTop.color != color){
       printAlert("ACAO INVALIDA");
       delay(messageOffset);
       printDefaultMessage();
@@ -285,7 +251,7 @@ bool isValidInsertAction(DISK diskOnTop){
 
 void insertDiskOnTower(int towerNumber, String color){
   if (towers[towerNumber-1].below == "none"){
-    towers[towerNumber-1].top = color;
+    towers[towerNumber-1].below = color;
   } else if (towers[towerNumber-1].middle == "none") {
     towers[towerNumber-1].middle = color;
   } else {
@@ -315,4 +281,23 @@ void removeDiskFromTower(int towerNumber, String color) {
     delay(messageOffset);
     printDefaultMessage();
   }
+}
+
+void printDefaultMessage() {
+  lcd.clear();
+  lcd.print("Torre de Hanoi");
+  lcd.setCursor(0,1);
+  lcd.print("Faca uma jogada!");
+}
+
+  
+void printActionsCount() {
+  lcd.clear();
+  lcd.print("Quantidade de jogadas realizadas:");
+  lcd.print(actionsCount);
+}
+
+void printAlert(String message) {
+  lcd.clear();
+  lcd.print(message);
 }
