@@ -301,3 +301,128 @@ void printAlert(String message) {
   lcd.clear();
   lcd.print(message);
 }
+
+
+//Output from the sensor
+// int redFrequency = 0;
+// int greenFrequency = 0;
+// int blueFrequency = 0;
+//Values used for calibration
+// int redMin;
+// int redMax;
+// int greenMin;
+// int greenMax;
+// int blueMin;
+// int blueMax;
+// int color;
+
+// void decideColor() {//format color values
+//   //Limit possible values:
+//   redColor = constrain(redColor, 0, 255);
+//   greenColor = constrain(greenColor, 0, 255);
+//   blueColor = constrain(blueColor, 0, 255);
+//   //find brightest color:
+//   int maxVal = max(redColor, blueColor);
+//   maxVal = max(maxVal, greenColor);
+//   //map new values
+//   redColor = map(redColor, 0, maxVal, 0, 255);
+//   greenColor = map(greenColor, 0, maxVal, 0, 255);
+//   blueColor = map(blueColor, 0, maxVal, 0, 255);
+//   redColor = constrain(redColor, 0, 255);
+//   greenColor = constrain(greenColor, 0, 255);
+//   blueColor = constrain(blueColor, 0, 255);
+//   //light led
+//   analogWrite(redLED, redColor);
+//   analogWrite(greenLED, greenColor);
+//   analogWrite(blueLED, blueColor);
+//   //decide which color is present (you may need to change some values here):
+//   if (redColor > 250 && greenColor > 250 && blueColor > 250) {
+//     color = 1;//white
+//   }
+//   else if (redColor < 25 && greenColor < 25 && blueColor < 25) {
+//     color = 2;//black
+//   }
+//   else if (redColor > 200 &&  greenColor > 200 && blueColor < 100) {
+//     color = 4;//yellow
+//   }
+//   else if (redColor > 200 &&  greenColor > 25 /*&& blueColor < 100*/) {
+//     color = 3;//orange
+//   }
+//   else if (redColor > 200 &&  greenColor < 100 && blueColor > 200) {
+//     color = 5;//purple
+//   }
+//   else if (redColor > 250 && greenColor < 200 && blueColor < 200) {
+//     color = 6;//red
+//   }
+//   else if (redColor < 200 && greenColor > 250 && blueColor < 200) {
+//     color = 7;//green
+//   }
+//   else if (redColor < 200 /*&& greenColor < 200*/ && blueColor > 250) {
+//     color = 8;//blue
+//   }
+//   else {
+//     color = 0;//unknown
+//   }
+// }
+
+// void calibrate() {
+//   Serial.println("Calibrating...");
+//   Serial.println("White");//aim sensor at something white
+//   //set calibration values:
+//   digitalWrite(13, HIGH);
+//   delay(2000);
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, LOW);
+//   redMin = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   digitalWrite(S2, HIGH);
+//   digitalWrite(S3, HIGH);
+//   greenMin = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, HIGH);
+//   blueMin = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   Serial.println("next...");//aim sensor at something black
+//   digitalWrite(13, LOW);
+//   delay(2000);
+//   Serial.println("Black");
+//   //set calibration values:
+//   digitalWrite(13, HIGH);
+//   delay(2000);
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, LOW);
+//   redMax = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   digitalWrite(S2, HIGH);
+//   digitalWrite(S3, HIGH);
+//   greenMax = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, HIGH);
+//   blueMax = pulseIn(sensorOut, LOW);
+//   delay(100);
+//   Serial.println("Done calibrating.");
+//   digitalWrite(13, LOW);
+// }
+
+// void readColor() {//get data from sensor
+//   //red:
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, LOW);
+//   redFrequency = pulseIn(sensorOut, LOW);
+//   redColor = map(redFrequency, redMin, redMax, 255, 0);
+//   delay(100);
+//   //green:
+//   digitalWrite(S2, HIGH);
+//   digitalWrite(S3, HIGH);
+//   greenFrequency = pulseIn(sensorOut, LOW);
+//   greenColor = map(greenFrequency, greenMin, greenMax, 255, 0);
+//   delay(100);
+//   //blue:
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, HIGH);
+//   blueFrequency = pulseIn(sensorOut, LOW);
+//   blueColor = map(blueFrequency, blueMin, blueMax, 255, 0);
+//   delay(100);
+// }
