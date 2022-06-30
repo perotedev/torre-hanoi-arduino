@@ -89,6 +89,7 @@ int blue = 0;
 int actionsCount = 0; // count actions number
 int lastActionTime = 1001; // time since last action
 int disksOutTowerCount = 0; // checks the number of disks outside the towers
+bool isGameOver = false;
 DISK blueDisk = { "blue", "all" }; 
 DISK yellowDisk = { "yellow", "red" };
 DISK redDisk = { "red", "none" };
@@ -185,6 +186,7 @@ void loop() {
     lastActionTime = 100;
   }
   lastActionTime += 300;
+  checkGameEnd();
 }
 
 void initGameValues() {  
@@ -245,12 +247,20 @@ void pulseSensor(SENSOR sensor) {
 }
 
 void playGame() {
-  if (sensor1.lastColorRead != "unknow"){
-    tryMoveDisk(sensor1);
-  } else if (sensor2.lastColorRead != "unknow"){
-    tryMoveDisk(sensor2);
-  } else if (sensor3.lastColorRead != "unknow"){
-    tryMoveDisk(sensor3);
+  if (!isGameOver){
+    if (sensor1.lastColorRead != "unknow"){
+      tryMoveDisk(sensor1);
+    } else if (sensor2.lastColorRead != "unknow"){
+      tryMoveDisk(sensor2);
+    } else if (sensor3.lastColorRead != "unknow"){
+      tryMoveDisk(sensor3);
+    }
+  } else {
+    lcd.clear();
+    lcd.print("JOGO CONCLUIDO!");
+    lcd.setCursor(0,1);
+    lcd.print("Inicie Novamente");
+    delay(2500);
   }
 }
 
@@ -351,6 +361,16 @@ void printActionsCount() {
 void printAlert(String message) {
   lcd.clear();
   lcd.print(message);
+}
+
+void checkGameEnd(){
+  if (towers[2].top == "red" && towers[2].middle == "yellow" && towers[2].below == "blue"){
+    lcd.clear();
+    lcd.print("** PARABENS **");
+    lcd.setCursor(0,1);
+    lcd.print("Jogo Concluido!");
+    isGameOver = true;
+  }
 }
 
 
