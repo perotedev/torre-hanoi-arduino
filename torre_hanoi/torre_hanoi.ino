@@ -79,7 +79,7 @@ struct TOWER {
 };
 
 // Constants
-const int messageOffset = 400; // alert display time
+const int messageOffset = 1500; // alert display time
 const int timeToNextMove = 1000; // one second after last move is permited more actions
 
 // Variables
@@ -306,6 +306,7 @@ void insertDiskOnTower(int towerNumber, String color){
   }
   towers[towerNumber-1].colorOnTop = color;
   actionsCount ++;
+  disksOutTowerCount--;
   printActionsCount();
   delay(messageOffset);
   printDefaultMessage();
@@ -323,10 +324,12 @@ void removeDiskFromTower(int towerNumber, String color) {
       towers[towerNumber-1].top = "none";
       towers[towerNumber-1].colorOnTop = towers[towerNumber-1].middle;
     }
-    actionsCount ++;
-    printActionsCount();
-    delay(messageOffset);
-    printDefaultMessage();
+    disksOutTowerCount++;
+    if (disksOutTowerCount > 1){
+      printAlert("ACAO INVALIDA");
+      delay(messageOffset);
+      printDefaultMessage();
+    }
   }
 }
 
@@ -339,7 +342,9 @@ void printDefaultMessage() {
 
 void printActionsCount() {
   lcd.clear();
-  lcd.print("Quantidade de jogadas realizadas:");
+  lcd.print("Quantidade");
+  lcd.setCursor(0,1);
+  lcd.print("de jogadas: ");
   lcd.print(actionsCount);
 }
 
