@@ -30,7 +30,7 @@ Color Sensor 3     Arduino
 VCC               5V
 GND               GND
 s0                50
-s1                41
+s1                51
 s2                43
 s3                42
 OUT               41
@@ -89,21 +89,20 @@ int blue = 0;
 int actionsCount = 0; // count actions number
 int lastActionTime = 1001; // time since last action
 int disksOutTowerCount = 0; // checks the number of disks outside the towers
-DISK blueDisk;
-DISK yellowDisk;
-DISK redDisk;
+DISK blueDisk = { "blue", "all" }; 
+DISK yellowDisk = { "yellow", "red" };
+DISK redDisk = { "red", "none" };
+DISK noneDisk = { "none", "all" }; ;
 SENSOR sensor1;
 SENSOR sensor2;
 SENSOR sensor3;
-TOWER tower1;
-TOWER tower2;
-TOWER tower3;
+TOWER tower1 = { "blue", "yellow", "red", "red" };
+TOWER tower2 = { "none", "none", "none", "none" };
+TOWER tower3 = { "none", "none", "none", "none" };
+TOWER towers[3];
 
-// Pointers to access tower struct by reference array
-TOWER *t1 = &tower1;
-TOWER *t2 = &tower2;
-TOWER *t3 = &tower3;
-TOWER towers[3] = { *t1, *t2, *t3 };
+String cor;
+String torre;
 
 // Lcd definition
 LiquidCrystal lcd(8,9,10,11,12,13);
@@ -127,6 +126,13 @@ void setup() {
   printDefaultMessage();
 }
 
+void printTower(int number){
+  Serial.println("cor top: "+towers[number].colorOnTop);
+  Serial.println("top: "+towers[number].top);
+  Serial.println("middle: "+towers[number].middle);
+  Serial.println("below: "+towers[number].below);
+}
+
 void loop() {
   readColor(sensor1);
   delay(100);
@@ -134,6 +140,45 @@ void loop() {
   delay(100);
   readColor(sensor3);
   delay(100);
+
+  //******* CODE SERIAL MONITOR TEST  *******//
+
+  // Serial.println("cor:");
+  // while (Serial.available() == 0){};
+  // cor = Serial.readString();
+  // Serial.println("torre:");
+  // while (Serial.available() == 0){};
+  // torre = Serial.readString();
+  // delay(100);
+
+  // Serial.println("cor: "+cor);
+  // Serial.println("torre: "+torre);
+
+  // if (torre == "1"){
+  //   sensor1.lastColorRead = cor;
+  //   sensor2.lastColorRead = "unknow";
+  //   sensor3.lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 1");
+  //   printTower(0);
+  // } else if (torre == "2"){
+  //   sensor2.lastColorRead = cor;
+  //   sensor1.lastColorRead = "unknow";
+  //   sensor3.lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 2");
+  //   printTower(1);
+  // } else if (torre == "3"){
+  //   sensor3.lastColorRead = cor;
+  //   sensor1.lastColorRead = "unknow";
+  //   sensor2.lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 2");
+  //   printTower(2);
+  // }
+
+  ////////////////////////////////////////q
+
   if (lastActionTime > timeToNextMove){
     playGame();
     delay(100);
@@ -142,16 +187,10 @@ void loop() {
   lastActionTime += 300;
 }
 
-void initGameValues() {
-  // disk rules
-  blueDisk = { "blue", "all" }; 
-  yellowDisk = { "yellow", "red" };
-  redDisk = { "red", "none" };
-
-  // initial postion disks in towers
-  tower1 = { "blue", "yellow", "red", "red" };
-  tower2 = { "none", "none", "none", "none" };
-  tower3 = { "none", "none", "none", "none" };
+void initGameValues() {  
+  towers[0] = tower1;
+  towers[1] = tower2;
+  towers[2] = tower3;
 }
 
 void setSensorPinMode(SENSOR sensor) {
@@ -218,6 +257,7 @@ void playGame() {
 void tryMoveDisk(SENSOR sensor) {
   TOWER tower = towers[sensor.sensorNumber-1];
   DISK diskOnTop = getDisk(tower.colorOnTop);
+  Serial.println("Disco no topo: "+diskOnTop.color+", aceita "+diskOnTop.topColor);
   bool isInsertion = isInsertAction(diskOnTop, sensor.lastColorRead);
   if (isInsertion) {
     insertDiskOnTower(sensor.sensorNumber, sensor.lastColorRead);
@@ -231,20 +271,26 @@ DISK getDisk(String diskColor) {
     return blueDisk;
   } else if (diskColor == "yellow") {
     return yellowDisk;
-  } else {
+  } else if (diskColor == "red"){
     return redDisk;
+  } else {
+    return noneDisk;
   }
 }
 
 bool isInsertAction(DISK diskOnTop, String color){
-  if (diskOnTop.topColor ==  "all" || diskOnTop.topColor == color){
+  if (diskOnTop.topColor ==  "all" && (diskOnTop.color != "blue" || color != "blue") || diskOnTop.topColor == color){
+    Serial.println("Está inserindo");
     return true;
   } else {
     // condition check if is a disk remove
     if (diskOnTop.color != color){
+      Serial.println("Não pode inserir");
       printAlert("ACAO INVALIDA");
       delay(messageOffset);
       printDefaultMessage();
+    } else {
+      Serial.println("Está removendo");
     }
     return false;
   }
