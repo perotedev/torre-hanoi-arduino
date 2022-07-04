@@ -111,8 +111,8 @@ SENSOR sensor3 = {50, 51, 43, 42, 41 , 3, "unknow", rgb3};
 SENSOR sensors[3];
 
 // Test Variables
-String cor;
-String torre;
+// String cor;
+// String torre;
 
 // Lcd definition
 LiquidCrystal lcd(8,9,10,11,12,13);
@@ -141,57 +141,57 @@ void printTower(int number){
 }
 
 void loop() {
-  // readColor(sensors[0]);
-  // delay(100);
-  // readColor(sensors[1]);
-  // delay(100);
-  // readColor(sensors[2]);
-  // delay(100);
+  readColor(sensors[0]);
+  delay(100);
+  readColor(sensors[1]);
+  delay(100);
+  readColor(sensors[2]);
+  delay(100);
 
   //******* CODE SERIAL MONITOR TEST  *******//
 
-  Serial.println("cor:");
-  while (Serial.available() == 0){};
-  cor = Serial.readString();
-  Serial.println("torre:");
-  while (Serial.available() == 0){};
-  torre = Serial.readString();
-  delay(100);
+  // Serial.println("cor:");
+  // while (Serial.available() == 0){};
+  // cor = Serial.readString();
+  // Serial.println("torre:");
+  // while (Serial.available() == 0){};
+  // torre = Serial.readString();
+  // delay(100);
 
-  Serial.println("cor: "+cor);
-  Serial.println("torre: "+torre);
+  // Serial.println("cor: "+cor);
+  // Serial.println("torre: "+torre);
 
-  if (torre == "1"){
-    sensors[0].lastColorRead = cor;
-    sensors[1].lastColorRead = "unknow";
-    sensors[2].lastColorRead = "unknow";
-    playGame();
-    Serial.println("Printando torre 1");
-    printTower(0);
-  } else if (torre == "2"){
-    sensors[1].lastColorRead = cor;
-    sensors[0].lastColorRead = "unknow";
-    sensors[2].lastColorRead = "unknow";
-    playGame();
-    Serial.println("Printando torre 2");
-    printTower(1);
-  } else if (torre == "3"){
-    sensors[2].lastColorRead = cor;
-    sensors[0].lastColorRead = "unknow";
-    sensors[1].lastColorRead = "unknow";
-    playGame();
-    Serial.println("Printando torre 2");
-    printTower(2);
-  }
+  // if (torre == "1"){
+  //   sensors[0].lastColorRead = cor;
+  //   sensors[1].lastColorRead = "unknow";
+  //   sensors[2].lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 1");
+  //   printTower(0);
+  // } else if (torre == "2"){
+  //   sensors[1].lastColorRead = cor;
+  //   sensors[0].lastColorRead = "unknow";
+  //   sensors[2].lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 2");
+  //   printTower(1);
+  // } else if (torre == "3"){
+  //   sensors[2].lastColorRead = cor;
+  //   sensors[0].lastColorRead = "unknow";
+  //   sensors[1].lastColorRead = "unknow";
+  //   playGame();
+  //   Serial.println("Printando torre 2");
+  //   printTower(2);
+  // }
 
   ////////////////////////////////////////q
 
-  // if (lastActionTime > timeToNextMove){
-  //   playGame();
-  //   delay(100);
-  //   lastActionTime = 100;
-  // }
-  // lastActionTime += 300;
+  if (lastActionTime > timeToNextMove){
+    playGame();
+    delay(100);
+    lastActionTime = 100;
+  }
+  lastActionTime += 300;
   checkGameEnd();
 }
 
