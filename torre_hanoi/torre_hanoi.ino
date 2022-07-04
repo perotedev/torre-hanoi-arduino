@@ -55,6 +55,12 @@ K                 GND
 // include lcd lib
 #include<LiquidCrystal.h>
 
+struct RGB {
+  int red;
+  int green;
+  int blue;
+};
+
 // Structs
 struct SENSOR {
   int S0;
@@ -64,6 +70,7 @@ struct SENSOR {
   int OUT;
   int sensorNumber;
   String lastColorRead;
+  RGB rgb;
 };
 
 struct DISK {
@@ -83,25 +90,27 @@ const int messageOffset = 1500; // alert display time
 const int timeToNextMove = 1000; // one second after last move is permited more actions
 
 // Variables
-int red = 0;
-int green = 0;
-int blue = 0;
 int actionsCount = 0; // count actions number
 int lastActionTime = 1001; // time since last action
 int disksOutTowerCount = 0; // checks the number of disks outside the towers
 bool isGameOver = false;
+RGB rgb1 = {0,0,0};
+RGB rgb2 = {0,0,0};
+RGB rgb3 = {0,0,0};
 DISK blueDisk = { "blue", "all" }; 
 DISK yellowDisk = { "yellow", "red" };
 DISK redDisk = { "red", "none" };
 DISK noneDisk = { "none", "all" }; ;
-SENSOR sensor1;
-SENSOR sensor2;
-SENSOR sensor3;
 TOWER tower1 = { "blue", "yellow", "red", "red" };
 TOWER tower2 = { "none", "none", "none", "none" };
 TOWER tower3 = { "none", "none", "none", "none" };
 TOWER towers[3];
+SENSOR sensor1 = {50, 51, 52, 53, 49 , 1, "unknow", rgb1};
+SENSOR sensor2 = {50, 51, 47, 46, 45 , 2, "unknow", rgb2};
+SENSOR sensor3 = {50, 51, 43, 42, 41 , 3, "unknow", rgb3};
+SENSOR sensors[3];
 
+// Test Variables
 String cor;
 String torre;
 
@@ -112,10 +121,7 @@ void setup() {
   // init game variables
   initGameValues();
   
-  // init sensor pin mode
-  sensor1 = {50, 51, 52, 53, 49 , 1, "unknow"};
-  sensor2 = {50, 51, 47, 46, 45 , 2, "unknow"};
-  sensor3 = {50, 51, 43, 42, 41 , 3, "unknow"};  
+  // init sensor pin mode 
   setSensorPinMode(sensor1);
   setSensorPinMode(sensor2);
   setSensorPinMode(sensor3);
@@ -135,57 +141,57 @@ void printTower(int number){
 }
 
 void loop() {
-  readColor(sensor1);
-  delay(100);
-  readColor(sensor2);
-  delay(100);
-  readColor(sensor3);
-  delay(100);
+  // readColor(sensors[0]);
+  // delay(100);
+  // readColor(sensors[1]);
+  // delay(100);
+  // readColor(sensors[2]);
+  // delay(100);
 
   //******* CODE SERIAL MONITOR TEST  *******//
 
-  // Serial.println("cor:");
-  // while (Serial.available() == 0){};
-  // cor = Serial.readString();
-  // Serial.println("torre:");
-  // while (Serial.available() == 0){};
-  // torre = Serial.readString();
-  // delay(100);
+  Serial.println("cor:");
+  while (Serial.available() == 0){};
+  cor = Serial.readString();
+  Serial.println("torre:");
+  while (Serial.available() == 0){};
+  torre = Serial.readString();
+  delay(100);
 
-  // Serial.println("cor: "+cor);
-  // Serial.println("torre: "+torre);
+  Serial.println("cor: "+cor);
+  Serial.println("torre: "+torre);
 
-  // if (torre == "1"){
-  //   sensor1.lastColorRead = cor;
-  //   sensor2.lastColorRead = "unknow";
-  //   sensor3.lastColorRead = "unknow";
-  //   playGame();
-  //   Serial.println("Printando torre 1");
-  //   printTower(0);
-  // } else if (torre == "2"){
-  //   sensor2.lastColorRead = cor;
-  //   sensor1.lastColorRead = "unknow";
-  //   sensor3.lastColorRead = "unknow";
-  //   playGame();
-  //   Serial.println("Printando torre 2");
-  //   printTower(1);
-  // } else if (torre == "3"){
-  //   sensor3.lastColorRead = cor;
-  //   sensor1.lastColorRead = "unknow";
-  //   sensor2.lastColorRead = "unknow";
-  //   playGame();
-  //   Serial.println("Printando torre 2");
-  //   printTower(2);
-  // }
+  if (torre == "1"){
+    sensors[0].lastColorRead = cor;
+    sensors[1].lastColorRead = "unknow";
+    sensors[2].lastColorRead = "unknow";
+    playGame();
+    Serial.println("Printando torre 1");
+    printTower(0);
+  } else if (torre == "2"){
+    sensors[1].lastColorRead = cor;
+    sensors[0].lastColorRead = "unknow";
+    sensors[2].lastColorRead = "unknow";
+    playGame();
+    Serial.println("Printando torre 2");
+    printTower(1);
+  } else if (torre == "3"){
+    sensors[2].lastColorRead = cor;
+    sensors[0].lastColorRead = "unknow";
+    sensors[1].lastColorRead = "unknow";
+    playGame();
+    Serial.println("Printando torre 2");
+    printTower(2);
+  }
 
   ////////////////////////////////////////q
 
-  if (lastActionTime > timeToNextMove){
-    playGame();
-    delay(100);
-    lastActionTime = 100;
-  }
-  lastActionTime += 300;
+  // if (lastActionTime > timeToNextMove){
+  //   playGame();
+  //   delay(100);
+  //   lastActionTime = 100;
+  // }
+  // lastActionTime += 300;
   checkGameEnd();
 }
 
@@ -193,6 +199,9 @@ void initGameValues() {
   towers[0] = tower1;
   towers[1] = tower2;
   towers[2] = tower3;
+  sensors[0] = sensor1;
+  sensors[1] = sensor2;
+  sensors[2] = sensor3;
 }
 
 void setSensorPinMode(SENSOR sensor) {
@@ -208,6 +217,9 @@ void setSensorPinMode(SENSOR sensor) {
 
 int readColor(SENSOR sensor) {
   pulseSensor(sensor);
+  int red = sensors[sensor.sensorNumber-1].rgb.red;
+  int blue = sensors[sensor.sensorNumber-1].rgb.blue;
+  int green = sensors[sensor.sensorNumber-1].rgb.green;
   Serial.print("R Intensity:");
   Serial.print(red, DEC);
   Serial.print(" G Intensity: ");
@@ -217,15 +229,15 @@ int readColor(SENSOR sensor) {
 
   if (red < green && red < blue && green < blue && (blue - green) > 9){
     Serial.print(" - (Yellow Color)");
-    sensor.lastColorRead = "yellow";
+    sensors[sensor.sensorNumber-1].lastColorRead = "yellow";
   } else if (red < blue && red < green && red < 20){
     Serial.print(" - (Red Color)");
-    sensor.lastColorRead = "red";
+    sensors[sensor.sensorNumber-1].lastColorRead = "red";
   } else if (blue < red && blue < green) {
     Serial.print(" - (Blue Color)");
-    sensor.lastColorRead = "blue";
+    sensors[sensor.sensorNumber-1].lastColorRead = "blue";
   } else {
-    sensor.lastColorRead = "unknow";
+    sensors[sensor.sensorNumber-1].lastColorRead = "unknow";
     Serial.print(" - (Unknow Color)");
   }
   
@@ -237,23 +249,23 @@ void pulseSensor(SENSOR sensor) {
   digitalWrite(sensor.S2, LOW);
   digitalWrite(sensor.S3, LOW);
   //count sensorOut, pRed, RED
-  red = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
+  sensors[sensor.sensorNumber-1].rgb.red = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
   digitalWrite(sensor.S3, HIGH);
   //count sensorOut, pBLUE, BLUE
-  blue = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
+  sensors[sensor.sensorNumber-1].rgb.blue = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
   digitalWrite(sensor.S2, HIGH);
   //count sensorOut, pGreen, GREEN
-  green = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
+  sensors[sensor.sensorNumber-1].rgb.green = pulseIn(sensor.OUT, digitalRead(sensor.OUT) == HIGH ? LOW : HIGH);
 }
 
 void playGame() {
   if (!isGameOver){
-    if (sensor1.lastColorRead != "unknow"){
-      tryMoveDisk(sensor1);
-    } else if (sensor2.lastColorRead != "unknow"){
-      tryMoveDisk(sensor2);
-    } else if (sensor3.lastColorRead != "unknow"){
-      tryMoveDisk(sensor3);
+    if (sensors[0].lastColorRead != "unknow"){
+      tryMoveDisk(sensors[0]);
+    } else if (sensors[1].lastColorRead != "unknow"){
+      tryMoveDisk(sensors[1]);
+    } else if (sensors[2].lastColorRead != "unknow"){
+      tryMoveDisk(sensors[2]);
     }
   } else {
     lcd.clear();
