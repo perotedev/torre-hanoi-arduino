@@ -22,7 +22,7 @@ s0                50
 s1                51
 s2                47
 s3                46
-OUT               48
+OUT               45
 OE                GND
 
 Color Sensor 3     Arduino
@@ -31,9 +31,9 @@ VCC               5V
 GND               GND
 s0                50
 s1                51
-s2                43
-s3                42
-OUT               41
+s2                33
+s3                32
+OUT               31
 OE                GND
 
 LCD               Arduino
@@ -107,7 +107,7 @@ TOWER tower3 = { "none", "none", "none", "none" };
 TOWER towers[3];
 SENSOR sensor1 = {50, 51, 52, 53, 49 , 1, "unknow", rgb1};
 SENSOR sensor2 = {50, 51, 47, 46, 45 , 2, "unknow", rgb2};
-SENSOR sensor3 = {50, 51, 43, 42, 41 , 3, "unknow", rgb3};
+SENSOR sensor3 = {50, 51, 33, 32, 31 , 3, "unknow", rgb3};
 SENSOR sensors[3];
 
 // Test Variables
@@ -141,12 +141,10 @@ void printTower(int number){
 }
 
 void loop() {
-  readColor(sensors[0]);
-  delay(100);
-  readColor(sensors[1]);
-  delay(100);
-  readColor(sensors[2]);
-  delay(100);
+  readColorSensor1(sensors[0]);
+  readColorSensor2(sensors[1]);
+  readColorSensor3(sensors[2]);
+  delay(50);
 
   //******* CODE SERIAL MONITOR TEST  *******//
 
@@ -186,12 +184,7 @@ void loop() {
 
   ////////////////////////////////////////q
 
-  if (lastActionTime > timeToNextMove){
-    playGame();
-    delay(100);
-    lastActionTime = 100;
-  }
-  lastActionTime += 300;
+  playGame();
   checkGameEnd();
 }
 
@@ -215,22 +208,22 @@ void setSensorPinMode(SENSOR sensor) {
   digitalWrite(sensor.S1, HIGH);
 }
 
-int readColor(SENSOR sensor) {
+int readColorSensor1(SENSOR sensor) {
   pulseSensor(sensor);
   int red = sensors[sensor.sensorNumber-1].rgb.red;
   int blue = sensors[sensor.sensorNumber-1].rgb.blue;
   int green = sensors[sensor.sensorNumber-1].rgb.green;
-  Serial.print("R Intensity:");
+  Serial.print("R: ");
   Serial.print(red, DEC);
-  Serial.print(" G Intensity: ");
+  Serial.print(" G: ");
   Serial.print(green, DEC);
-  Serial.print(" B Intensity : ");
+  Serial.print(" B: ");
   Serial.print(blue, DEC);
 
-  if (red < green && red < blue && green < blue && (blue - green) > 9){
+  if (red < green && red < blue && green < blue && red < 15){
     Serial.print(" - (Yellow Color)");
     sensors[sensor.sensorNumber-1].lastColorRead = "yellow";
-  } else if (red < blue && red < green && red < 20){
+  } else if (red < blue && red < green && red > 20 && red < 34){
     Serial.print(" - (Red Color)");
     sensors[sensor.sensorNumber-1].lastColorRead = "red";
   } else if (blue < red && blue < green) {
@@ -240,9 +233,69 @@ int readColor(SENSOR sensor) {
     sensors[sensor.sensorNumber-1].lastColorRead = "unknow";
     Serial.print(" - (Unknow Color)");
   }
-  
   Serial.print(" - Sensor ");
   Serial.println(sensor.sensorNumber);
+  printColor(sensors[sensor.sensorNumber-1].lastColorRead);
+}
+
+int readColorSensor2(SENSOR sensor) {
+  pulseSensor(sensor);
+  int red = sensors[sensor.sensorNumber-1].rgb.red;
+  int blue = sensors[sensor.sensorNumber-1].rgb.blue;
+  int green = sensors[sensor.sensorNumber-1].rgb.green;
+  Serial.print("R: ");
+  Serial.print(red, DEC);
+  Serial.print(" G: ");
+  Serial.print(green, DEC);
+  Serial.print(" B: ");
+  Serial.print(blue, DEC);
+
+  if (red <= 50 && green <= 50 && blue <= 75){
+    Serial.print(" - (Yellow Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "yellow";
+  } else if (red <= 70 && blue <= 180 && blue >= 110 && green >= 125){
+    Serial.print(" - (Red Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "red";
+  } else if (blue < red && blue < green) {
+    Serial.print(" - (Blue Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "blue";
+  } else {
+    sensors[sensor.sensorNumber-1].lastColorRead = "unknow";
+    Serial.print(" - (Unknow Color)");
+  }
+  Serial.print(" - Sensor ");
+  Serial.println(sensor.sensorNumber);
+  printColor(sensors[sensor.sensorNumber-1].lastColorRead);
+}
+
+int readColorSensor3(SENSOR sensor) {
+  pulseSensor(sensor);
+  int red = sensors[sensor.sensorNumber-1].rgb.red;
+  int blue = sensors[sensor.sensorNumber-1].rgb.blue;
+  int green = sensors[sensor.sensorNumber-1].rgb.green;
+  Serial.print("R: ");
+  Serial.print(red, DEC);
+  Serial.print(" G: ");
+  Serial.print(green, DEC);
+  Serial.print(" B: ");
+  Serial.print(blue, DEC);
+ 
+  if (red <= 50 && green <= 40 && blue <= 40){
+    Serial.print(" - (Yellow Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "yellow";
+  } else if (red <= 25 && blue <= 93 && blue >= 70 && green >= 70){
+    Serial.print(" - (Red Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "red";
+  } else if (red <=17 && blue <= 50 && green <= 50) {
+    Serial.print(" - (Blue Color)");
+    sensors[sensor.sensorNumber-1].lastColorRead = "blue";
+  } else {
+    sensors[sensor.sensorNumber-1].lastColorRead = "unknow";
+    Serial.print(" - (Unknow Color)");
+  }
+  Serial.print(" - Sensor ");
+  Serial.println(sensor.sensorNumber);
+  printColor(sensors[sensor.sensorNumber-1].lastColorRead);
 }
 
 void pulseSensor(SENSOR sensor) {
@@ -267,6 +320,7 @@ void playGame() {
     } else if (sensors[2].lastColorRead != "unknow"){
       tryMoveDisk(sensors[2]);
     }
+    delay(1000);
   } else {
     lcd.clear();
     lcd.print("JOGO CONCLUIDO!");
@@ -352,6 +406,21 @@ void removeDiskFromTower(int towerNumber, String color) {
       delay(messageOffset);
       printDefaultMessage();
     }
+  }
+}
+
+void printColor(String color) {
+  if (color == "yellow"){
+    printAlert("AMARELO");
+  } else if (color == "blue"){
+    printAlert("AZUL");
+  } else if (color == "red"){
+    printAlert("VERMELHO");
+  }
+
+  if (color != "unknow"){
+    delay(1000);
+    printDefaultMessage();
   }
 }
 
